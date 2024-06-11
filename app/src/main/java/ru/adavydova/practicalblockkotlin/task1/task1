@@ -1,0 +1,33 @@
+
+    data class Key(
+       val field1: Int,
+       val field2: String) {
+          var field3: String?
+    }
+
+    Так как класc Key - data class (переопределены equals, hashcode ),
+ при сравнении объектов на равентство будет учитываться равенство полей
+ основного конструктора (field1, field2). Свойства указанные внутри тела
+ класса при сравнении учитываться не будут (field 3).
+
+   Если мы решим использовать этот класс в качестве ключа hashMap,
+   может произойти следующая ситуация:
+
+     val key1 = Key(1, "1",)
+     val key2 = Key(2, "2",)
+     val key3 = Key(1, "1",)
+     key3.field3 = "3"
+
+   val keys = hashMapOf<Key, Key>( key1 to key1, key2 to key2, key3 to key3)
+
+   Так как key1 и key3 равны, при добавлении их обоих в hashMap
+   произойдет затирание первого объекта и при попытке обратиться
+   к мапе по первому ключу мы будем получать третий. Соответсвенно
+   первый ключ и его значение поля field3 также будут недостоверно.
+
+    key1 - (field1 - 1, field2 - 2, field3 - null)
+    key3 - (field1 - 1, field2 - 2, field3 - 3)
+
+    val newKey = keys[key1] // return key3
+
+
